@@ -1,6 +1,7 @@
 package com.api;
 
 import com.api.data.Item;
+import com.api.kafka.consumer.TotalSoldItemsConsumer;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +18,7 @@ public class AdminController {
     // Purchases Topic
     @RequestMapping(value = "/total-sold-items", produces = MediaType.APPLICATION_JSON_VALUE)
     public Integer totalSoldItems() {
-        return 10;
+        return TotalSoldItemsConsumer.read();
     }
 
     // Purchases Topic
@@ -36,7 +37,6 @@ public class AdminController {
     @RequestMapping(value = "/average-number-shipments-each-item-sold", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<Item> averageNumberShipmentsOfEachItemSold(){
         return null;
-
     }
 
     // Topic Purchases, Topic Shipments
@@ -48,7 +48,7 @@ public class AdminController {
     // Item providing the highest profit
     @RequestMapping(value = "/highest-profit-item", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<Item> averageNumberShipmentsOfEachItemSold(@NotNull @RequestParam Integer minutes){
-        return null; 
+        return null;
 
     }
 
