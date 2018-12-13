@@ -1,6 +1,7 @@
 package com.api.data;
 
 public class Item {
+
     protected Integer ItemID;
     protected String name;
     protected int price;
@@ -9,7 +10,7 @@ public class Item {
     public Item() {
     }
 
-    public Item(Integer itemId, String name, int price, int quantity) {
+    public Item(Integer itemId, String name, int price, int amount) {
         ItemID = itemId;
         this.name = name;
         this.price = price;
