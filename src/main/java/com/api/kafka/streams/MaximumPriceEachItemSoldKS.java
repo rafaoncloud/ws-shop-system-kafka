@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 
 public class MaximumPriceEachItemSoldKS {
 
-    public static final String INPUT_TOPIC = KafkaShop.MY_REPLY_TOPIC;
+    public static final String INPUT_TOPIC = KafkaShop.MY_REPLY_STATISTICS_TOPIC;
     public static final String TABLE_NAME = "table-maximum-price";
 
     public static boolean isStarted;
@@ -37,44 +37,6 @@ public class MaximumPriceEachItemSoldKS {
         props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass());
 
         StreamsBuilder builder = new StreamsBuilder();
-        KStream<String, String> purchases1 = builder.stream(INPUT_TOPIC + "1");
-        KStream<String, String> purchases2 = builder.stream(INPUT_TOPIC + "1");
-        KStream<String, String> purchases3 = builder.stream(INPUT_TOPIC + "1");
-
-        KTable<String, String> purchasesTable1 = purchases1.outerJoin(purchases2, (left, right) -> {
-                    Item purchase1 = KafkaShop.deserializeItemFromJSON(left);
-                    Item purchase2 = KafkaShop.deserializeItemFromJSON(right);
-
-                    if (purchase1.getName().equalsIgnoreCase(purchase2.getName())) {
-                        if ((purchase2.getPrice() * purchase2.getAmount()) > (purchase1.getPrice() * purchase2.getAmount())) {
-                            return KafkaShop.serializeItemToJSON(purchase2);
-                        }
-                    }
-                    return KafkaShop.serializeItemToJSON(purchase1);
-                }
-                , null).outerJoin(purchases3, (left, right) -> {
-                    Item purchase1 = KafkaShop.deserializeItemFromJSON(left);
-                    Item purchase2 = KafkaShop.deserializeItemFromJSON(right);
-
-                    if (purchase1.getName().equalsIgnoreCase(purchase2.getName())) {
-                        if ((purchase2.getPrice() * purchase2.getAmount()) > (purchase1.getPrice() * purchase2.getAmount())) {
-                            return KafkaShop.serializeItemToJSON(purchase2);
-                        }
-                    }
-                    return KafkaShop.serializeItemToJSON(purchase1);
-                }
-                , null).groupByKey()
-                .reduce((value1, value2) -> {
-                    Item purchase1 = KafkaShop.deserializeItemFromJSON(value1);
-                    Item purchase2 = KafkaShop.deserializeItemFromJSON(value2);
-
-                    if (purchase1.getName().equalsIgnoreCase(purchase2.getName())) {
-                        if ((purchase2.getPrice() * purchase2.getAmount()) > (purchase1.getPrice() * purchase2.getAmount())) {
-                            return KafkaShop.serializeItemToJSON(purchase2);
-                        }
-                    }
-                    return KafkaShop.serializeItemToJSON(purchase1);
-                }, Materialized.as(TABLE_NAME));
 
         streams = new KafkaStreams(builder.build(), props);
         streams.start();

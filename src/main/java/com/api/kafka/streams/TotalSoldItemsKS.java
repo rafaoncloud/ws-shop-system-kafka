@@ -21,7 +21,7 @@ import java.util.Properties;
 
 public class TotalSoldItemsKS {
 
-    public static final String INPUT_TOPIC = KafkaShop.PURCHASES_TOPIC;
+    public static final String INPUT_TOPIC = KafkaShop.MY_REPLY_STATISTICS_TOPIC;
     public static final String TABLE_NAME = "total-purchases-sold";
 
     public static boolean isStarted;
@@ -43,6 +43,8 @@ public class TotalSoldItemsKS {
 
         KTable<String, Long> purchasesTable = purchases.groupByKey()
                 .count(Materialized.as(TABLE_NAME));
+
+
 
         streams = new KafkaStreams(builder.build(), props);
         streams.start();

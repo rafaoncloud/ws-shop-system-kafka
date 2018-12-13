@@ -12,6 +12,7 @@ public abstract class KafkaShop {
     public static final String PURCHASES_TOPIC = "purchases-topic";
     public static final String REORDER_TOPIC = "reorder-topic";
     public static final String SHIPMENTS_TOPIC = "shipments-topic";
+    public static final String MY_REPLY_STATISTICS_TOPIC ="my-reply-statistics-topic";
 
     //Kafka Stream Output
     public static final String PRODUCTS_SOLD_TOPIC_KS = "total-products-sold-topic";

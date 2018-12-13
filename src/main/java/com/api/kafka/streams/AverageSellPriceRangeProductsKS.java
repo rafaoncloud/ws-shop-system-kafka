@@ -20,7 +20,7 @@ import java.util.Properties;
 
 public class AverageSellPriceRangeProductsKS {
 
-    public static final String INPUT_TOPIC = KafkaShop.PURCHASES_TOPIC;
+    public static final String INPUT_TOPIC = KafkaShop.MY_REPLY_STATISTICS_TOPIC;
     public static final String TABLE_NAME = "table-each-item-sold";
 
     public static boolean isStarted;
