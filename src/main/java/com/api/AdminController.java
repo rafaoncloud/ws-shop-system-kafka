@@ -1,9 +1,7 @@
 package com.api;
 
 import com.api.data.Item;
-import com.api.kafka.streams.MaximumPriceEachItemSoldKS;
-import com.api.kafka.streams.SellsEachItemKS;
-import com.api.kafka.streams.TotalSoldItemsKS;
+import com.api.kafka.streams.*;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -44,19 +42,22 @@ public class AdminController {
     // Topic Purchases, Topic Shipments
     @RequestMapping(value = "/shop-status", produces = MediaType.APPLICATION_JSON_VALUE)
     public String shopRevenueExpensesProfit(){
-        return null;
+        int revenue = RevenueKS.get();
+        int expenses = ExpensesKS.get();
+        return "Revenue(" + revenue + ") Expenses(" + expenses + ") Profit(" + (revenue - expenses) + ")";
     }
 
     // Item providing the highest profit
     @RequestMapping(value = "/highest-profit-item", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Item itemHighestProfitLast5Minutes(){
-        return null;
+    public String itemHighestProfitLast5Minutes(){
+        Item item = ItemProvidingHighestProfit.get();
+        return item.getName()  /* + " - Profit(" + item.getPrice() + ")"*/;
 
     }
 
     // Item providing the highest profit
     @RequestMapping(value = "/item-average-sold-price", produces = MediaType.APPLICATION_JSON_VALUE)
-    public int itemAverageSoldPrice(@NotNull @RequestParam String initialproduct,
+    public int itemAverageSoldPrice(@NotNull @RequestParam String initialProduct,
                                     @NotNull @RequestParam String endProduct){
         return 10;
     }

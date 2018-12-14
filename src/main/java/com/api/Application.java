@@ -1,9 +1,7 @@
 package com.api;
 
 
-import com.api.kafka.streams.MaximumPriceEachItemSoldKS;
-import com.api.kafka.streams.SellsEachItemKS;
-import com.api.kafka.streams.TotalSoldItemsKS;
+import com.api.kafka.streams.*;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -18,6 +16,13 @@ public class Application {
             TotalSoldItemsKS.startKafkaStream();
             SellsEachItemKS.startKafkaStream();
             MaximumPriceEachItemSoldKS.startKafkaStream();
+
+            // PROFIT
+            RevenueKS.startKafkaStream();
+            ExpensesKS.startKafkaStream();
+
+            RevenueLast5MinKS.startKafkaStream();
+            ExpensesLast5MinKS.startKafkaStream();
 
             //Thread.sleep(5000);
         } catch (Exception e) {

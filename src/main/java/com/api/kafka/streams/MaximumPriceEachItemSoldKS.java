@@ -11,6 +11,7 @@ import org.apache.kafka.streams.kstream.*;
 import org.apache.kafka.streams.state.KeyValueIterator;
 import org.apache.kafka.streams.state.QueryableStoreTypes;
 import org.apache.kafka.streams.state.ReadOnlyKeyValueStore;
+import org.apache.kafka.streams.state.ReadOnlyWindowStore;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,6 +39,29 @@ public class MaximumPriceEachItemSoldKS {
 
         StreamsBuilder builder = new StreamsBuilder();
 
+        KStream<String, String> purchases = builder.stream(INPUT_TOPIC);
+
+        //KTable<String, String> purchasesTable =
+        purchases.groupByKey()
+                .windowedBy(TimeWindows.of(TimeUnit.MINUTES.toMillis(5 * 60000)))
+                .reduce(new Reducer<String>() {
+                    /* adder */
+                    @Override
+                    public String apply(String aggValue, String newValue) {
+
+                        Item aggItem = KafkaShop.deserializeItemFromJSON(aggValue);
+                        Item newItem = KafkaShop.deserializeItemFromJSON(newValue);
+
+                        //if (purchase1.getName().equalsIgnoreCase(purchase2.getName())) {
+                        if ((aggItem.getPrice() * aggItem.getAmount()) > (newItem.getPrice() * newItem.getAmount())) {
+                            return KafkaShop.serializeItemToJSON(aggItem);
+                        } else {
+                            return KafkaShop.serializeItemToJSON(newItem);
+                        }
+                        //}
+                    }
+                }, Materialized.as(TABLE_NAME));
+
         streams = new KafkaStreams(builder.build(), props);
         streams.start();
 
@@ -45,16 +69,18 @@ public class MaximumPriceEachItemSoldKS {
     }
 
     public static List<Item> get() {
-        ReadOnlyKeyValueStore<String, String> keyValueStore = streams.store(TABLE_NAME, QueryableStoreTypes.keyValueStore());
+        // WINDOWED STORE
+        ReadOnlyWindowStore<String, String> keyValueStore =
+                streams.store(TABLE_NAME, QueryableStoreTypes.<String, String>windowStore());
 
         List<Item> products = new ArrayList<>();
-        KeyValueIterator<String, String> range = keyValueStore.all();
+        KeyValueIterator<Windowed<String>, String> range = keyValueStore.all();
 
         while (range.hasNext()) {
-            KeyValue<String, String> next = range.next();
+            KeyValue<Windowed<String>, String> next = range.next();
             Item product = KafkaShop.deserializeItemFromJSON(next.value);
 
-            System.out.println("count for " + next.key + ": " + next.value);
+            System.out.println("count for " + product.getName() + ": " + product.getAmount());
             products.add(product);
         }
         range.close();

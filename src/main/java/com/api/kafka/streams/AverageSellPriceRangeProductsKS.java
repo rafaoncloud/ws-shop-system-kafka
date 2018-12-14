@@ -10,6 +10,7 @@ import org.apache.kafka.streams.StreamsConfig;
 import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.KTable;
 import org.apache.kafka.streams.kstream.Materialized;
+import org.apache.kafka.streams.kstream.Reducer;
 import org.apache.kafka.streams.state.KeyValueIterator;
 import org.apache.kafka.streams.state.QueryableStoreTypes;
 import org.apache.kafka.streams.state.ReadOnlyKeyValueStore;
@@ -40,8 +41,20 @@ public class AverageSellPriceRangeProductsKS {
         StreamsBuilder builder = new StreamsBuilder();
         KStream<String, String> purchases = builder.stream(INPUT_TOPIC);
 
-        KTable<String, Long> purchasesTable = purchases.groupByKey()
-                .count(Materialized.as(TABLE_NAME));
+        KTable<String, String> purchasesTable = purchases.groupByKey()
+                .reduce(new Reducer<String>() {
+                    /* adder */
+                    @Override
+                    public String apply(String aggValue, String newValue) {
+
+                        Item aggItem = KafkaShop.deserializeItemFromJSON(aggValue);
+                        Item newItem = KafkaShop.deserializeItemFromJSON(newValue);
+
+                        int average = (aggItem.getPrice() * newItem.getPrice());
+
+                        return KafkaShop.serializeItemToJSON(new Item(0, aggItem.getName(),average,0));
+                    }
+                }, Materialized.as(TABLE_NAME));
 
         streams = new KafkaStreams(builder.build(), props);
         streams.start();
